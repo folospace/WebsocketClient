@@ -33,7 +33,7 @@ class WebsocketClient
     public function emit($action, $data)
     {
         $this->connect();
-        $frame = sprintf('42["%s", "%s"]', $action, addslashes(json_encode($data)));
+        $frame = '42'.json_encode([$action, $data]));
         return fwrite($this->socket, $this->hybi10Encode($frame));
     }
 
@@ -41,13 +41,7 @@ class WebsocketClient
     {
         $this->connect();
         $frame = fread($this->socket,1000000);
-        $frame = $this->hybi10Decode($frame);
-
-        if (strpos($frame, '42[') === 0) {
-            preg_match('/\[(.*)\]/', $frame, $matches);
-            return json_decode(trim($matches[0], ' "'), true);
-        }
-        return json_decode($frame, true);
+        return $this->hybi10Decode($frame);
     }
 
     
